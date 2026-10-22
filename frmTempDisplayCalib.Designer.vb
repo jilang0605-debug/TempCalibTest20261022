@@ -44,9 +44,7 @@ Partial Class frmTempDisplayCalib
     Friend WithEvents dgvHP As System.Windows.Forms.DataGridView
     Friend WithEvents colHPValid As System.Windows.Forms.DataGridViewCheckBoxColumn
     Friend WithEvents colHPSetTemp As System.Windows.Forms.DataGridViewTextBoxColumn
-    Friend WithEvents colHPDisplayTemp As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents colHPRefMeasured As System.Windows.Forms.DataGridViewTextBoxColumn
-    Friend WithEvents colHPError As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents colHPCalibrated As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents colHPMeasuredAt As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents chartHP As System.Windows.Forms.DataVisualization.Charting.Chart
@@ -63,9 +61,7 @@ Partial Class frmTempDisplayCalib
     Friend WithEvents dgvPB As System.Windows.Forms.DataGridView
     Friend WithEvents colPBValid As System.Windows.Forms.DataGridViewCheckBoxColumn
     Friend WithEvents colPBSetTemp As System.Windows.Forms.DataGridViewTextBoxColumn
-    Friend WithEvents colPBDisplayTemp As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents colPBRefMeasured As System.Windows.Forms.DataGridViewTextBoxColumn
-    Friend WithEvents colPBError As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents colPBCalibrated As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents colPBMeasuredAt As System.Windows.Forms.DataGridViewTextBoxColumn
     Friend WithEvents chartPB As System.Windows.Forms.DataVisualization.Charting.Chart
@@ -81,9 +77,13 @@ Partial Class frmTempDisplayCalib
     Friend WithEvents lblCheckTitle As System.Windows.Forms.Label
     Friend WithEvents lblCheckHPTitle As System.Windows.Forms.Label
     Friend WithEvents nudCheckHP As System.Windows.Forms.NumericUpDown
+    Friend WithEvents lblCheckHPSetTempTitle As System.Windows.Forms.Label
+    Friend WithEvents nudCheckHPSetTemp As System.Windows.Forms.NumericUpDown
     Friend WithEvents lblHPResult As System.Windows.Forms.Label
     Friend WithEvents lblCheckPBTitle As System.Windows.Forms.Label
     Friend WithEvents nudCheckPB As System.Windows.Forms.NumericUpDown
+    Friend WithEvents lblCheckPBSetTempTitle As System.Windows.Forms.Label
+    Friend WithEvents nudCheckPBSetTemp As System.Windows.Forms.NumericUpDown
     Friend WithEvents lblPBResult As System.Windows.Forms.Label
 
     <System.Diagnostics.DebuggerStepThrough()>
@@ -124,9 +124,7 @@ Partial Class frmTempDisplayCalib
 		Me.dgvHP = New System.Windows.Forms.DataGridView()
 		Me.HPValid = New System.Windows.Forms.DataGridViewCheckBoxColumn()
 		Me.HPSetTemp = New System.Windows.Forms.DataGridViewTextBoxColumn()
-		Me.HPDisplayTemp = New System.Windows.Forms.DataGridViewTextBoxColumn()
 		Me.HPRefMeasured = New System.Windows.Forms.DataGridViewTextBoxColumn()
-		Me.HPError = New System.Windows.Forms.DataGridViewTextBoxColumn()
 		Me.HPCalibrated = New System.Windows.Forms.DataGridViewTextBoxColumn()
 		Me.HPMeasuredAt = New System.Windows.Forms.DataGridViewTextBoxColumn()
 		Me.chartHP = New System.Windows.Forms.DataVisualization.Charting.Chart()
@@ -140,9 +138,7 @@ Partial Class frmTempDisplayCalib
 		Me.dgvPB = New System.Windows.Forms.DataGridView()
 		Me.PBValid = New System.Windows.Forms.DataGridViewCheckBoxColumn()
 		Me.PBSetTemp = New System.Windows.Forms.DataGridViewTextBoxColumn()
-		Me.PBDisplayTemp = New System.Windows.Forms.DataGridViewTextBoxColumn()
 		Me.PBRefMeasured = New System.Windows.Forms.DataGridViewTextBoxColumn()
-		Me.PBError = New System.Windows.Forms.DataGridViewTextBoxColumn()
 		Me.PBCalibrated = New System.Windows.Forms.DataGridViewTextBoxColumn()
 		Me.PBMeasuredAt = New System.Windows.Forms.DataGridViewTextBoxColumn()
 		Me.chartPB = New System.Windows.Forms.DataVisualization.Charting.Chart()
@@ -155,9 +151,13 @@ Partial Class frmTempDisplayCalib
 		Me.lblCheckTitle = New System.Windows.Forms.Label()
 		Me.lblCheckHPTitle = New System.Windows.Forms.Label()
 		Me.nudCheckHP = New System.Windows.Forms.NumericUpDown()
+		Me.lblCheckHPSetTempTitle = New System.Windows.Forms.Label()
+		Me.nudCheckHPSetTemp = New System.Windows.Forms.NumericUpDown()
 		Me.lblHPResult = New System.Windows.Forms.Label()
 		Me.lblCheckPBTitle = New System.Windows.Forms.Label()
 		Me.nudCheckPB = New System.Windows.Forms.NumericUpDown()
+		Me.lblCheckPBSetTempTitle = New System.Windows.Forms.Label()
+		Me.nudCheckPBSetTemp = New System.Windows.Forms.NumericUpDown()
 		Me.lblPBResult = New System.Windows.Forms.Label()
 		Me.rootLayout.SuspendLayout
 		Me.topPanel.SuspendLayout
@@ -179,7 +179,9 @@ Partial Class frmTempDisplayCalib
 		Me.pbBottomPanel.SuspendLayout
 		Me.checkPanel.SuspendLayout
 		CType(Me.nudCheckHP,System.ComponentModel.ISupportInitialize).BeginInit
+		CType(Me.nudCheckHPSetTemp,System.ComponentModel.ISupportInitialize).BeginInit
 		CType(Me.nudCheckPB,System.ComponentModel.ISupportInitialize).BeginInit
+		CType(Me.nudCheckPBSetTemp,System.ComponentModel.ISupportInitialize).BeginInit
 		Me.SuspendLayout
 		'
 		'rootLayout
@@ -394,6 +396,7 @@ Partial Class frmTempDisplayCalib
 		'
 		Me.CH1Error.HeaderText = "CH1誤差"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"(℃)"
 		Me.CH1Error.Name = "CH1Error"
+		Me.CH1Error.ReadOnly = true
 		Me.CH1Error.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
 		Me.CH1Error.Width = 105
 		'
@@ -408,6 +411,7 @@ Partial Class frmTempDisplayCalib
 		'
 		Me.CH2Error.HeaderText = "CH2誤差"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"(℃)"
 		Me.CH2Error.Name = "CH2Error"
+		Me.CH2Error.ReadOnly = true
 		Me.CH2Error.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
 		Me.CH2Error.Width = 105
 		'
@@ -490,7 +494,7 @@ Partial Class frmTempDisplayCalib
 		Me.dgvHP.AllowUserToDeleteRows = false
 		Me.dgvHP.BackgroundColor = System.Drawing.SystemColors.Window
 		Me.dgvHP.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-		Me.dgvHP.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.HPValid, Me.HPSetTemp, Me.HPDisplayTemp, Me.HPRefMeasured, Me.HPError, Me.HPCalibrated, Me.HPMeasuredAt})
+		Me.dgvHP.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.HPValid, Me.HPSetTemp, Me.HPRefMeasured, Me.HPCalibrated, Me.HPMeasuredAt})
 		Me.dgvHP.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.dgvHP.Location = New System.Drawing.Point(3, 3)
 		Me.dgvHP.MultiSelect = false
@@ -513,12 +517,6 @@ Partial Class frmTempDisplayCalib
 		Me.HPSetTemp.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
 		Me.HPSetTemp.Width = 90
 		'
-		'HPDisplayTemp
-		'
-		Me.HPDisplayTemp.HeaderText = "表示温度"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"(℃)"
-		Me.HPDisplayTemp.Name = "HPDisplayTemp"
-		Me.HPDisplayTemp.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
-		Me.HPDisplayTemp.Width = 90
 		'
 		'HPRefMeasured
 		'
@@ -527,13 +525,6 @@ Partial Class frmTempDisplayCalib
 		Me.HPRefMeasured.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
 		Me.HPRefMeasured.Width = 110
 		'
-		'HPError
-		'
-		Me.HPError.HeaderText = "校正誤差"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"(℃)"
-		Me.HPError.Name = "HPError"
-		Me.HPError.ReadOnly = true
-		Me.HPError.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
-		Me.HPError.Width = 90
 		'
 		'HPCalibrated
 		'
@@ -672,7 +663,7 @@ Partial Class frmTempDisplayCalib
 		Me.dgvPB.AllowUserToDeleteRows = false
 		Me.dgvPB.BackgroundColor = System.Drawing.SystemColors.Window
 		Me.dgvPB.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-		Me.dgvPB.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.PBValid, Me.PBSetTemp, Me.PBDisplayTemp, Me.PBRefMeasured, Me.PBError, Me.PBCalibrated, Me.PBMeasuredAt})
+		Me.dgvPB.Columns.AddRange(New System.Windows.Forms.DataGridViewColumn() {Me.PBValid, Me.PBSetTemp, Me.PBRefMeasured, Me.PBCalibrated, Me.PBMeasuredAt})
 		Me.dgvPB.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.dgvPB.Location = New System.Drawing.Point(3, 3)
 		Me.dgvPB.MultiSelect = false
@@ -695,12 +686,6 @@ Partial Class frmTempDisplayCalib
 		Me.PBSetTemp.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
 		Me.PBSetTemp.Width = 90
 		'
-		'PBDisplayTemp
-		'
-		Me.PBDisplayTemp.HeaderText = "表示温度"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"(℃)"
-		Me.PBDisplayTemp.Name = "PBDisplayTemp"
-		Me.PBDisplayTemp.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
-		Me.PBDisplayTemp.Width = 90
 		'
 		'PBRefMeasured
 		'
@@ -709,13 +694,6 @@ Partial Class frmTempDisplayCalib
 		Me.PBRefMeasured.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
 		Me.PBRefMeasured.Width = 110
 		'
-		'PBError
-		'
-		Me.PBError.HeaderText = "校正誤差"&Global.Microsoft.VisualBasic.ChrW(13)&Global.Microsoft.VisualBasic.ChrW(10)&"(℃)"
-		Me.PBError.Name = "PBError"
-		Me.PBError.ReadOnly = true
-		Me.PBError.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable
-		Me.PBError.Width = 90
 		'
 		'PBCalibrated
 		'
@@ -824,9 +802,13 @@ Partial Class frmTempDisplayCalib
 		Me.checkPanel.Controls.Add(Me.lblCheckTitle)
 		Me.checkPanel.Controls.Add(Me.lblCheckHPTitle)
 		Me.checkPanel.Controls.Add(Me.nudCheckHP)
+		Me.checkPanel.Controls.Add(Me.lblCheckHPSetTempTitle)
+		Me.checkPanel.Controls.Add(Me.nudCheckHPSetTemp)
 		Me.checkPanel.Controls.Add(Me.lblHPResult)
 		Me.checkPanel.Controls.Add(Me.lblCheckPBTitle)
 		Me.checkPanel.Controls.Add(Me.nudCheckPB)
+		Me.checkPanel.Controls.Add(Me.lblCheckPBSetTempTitle)
+		Me.checkPanel.Controls.Add(Me.nudCheckPBSetTemp)
 		Me.checkPanel.Controls.Add(Me.lblPBResult)
 		Me.checkPanel.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.checkPanel.Location = New System.Drawing.Point(8, 957)
@@ -834,6 +816,7 @@ Partial Class frmTempDisplayCalib
 		Me.checkPanel.Padding = New System.Windows.Forms.Padding(5)
 		Me.checkPanel.Size = New System.Drawing.Size(1768, 60)
 		Me.checkPanel.TabIndex = 3
+		Me.checkPanel.AutoScroll = true
 		Me.checkPanel.WrapContents = false
 		'
 		'lblCheckTitle
@@ -854,7 +837,7 @@ Partial Class frmTempDisplayCalib
 		Me.lblCheckHPTitle.Name = "lblCheckHPTitle"
 		Me.lblCheckHPTitle.Size = New System.Drawing.Size(82, 18)
 		Me.lblCheckHPTitle.TabIndex = 1
-		Me.lblCheckHPTitle.Text = "HP設定温度"
+		Me.lblCheckHPTitle.Text = "HP温度計読値 (℃)"
 		'
 		'nudCheckHP
 		'
@@ -869,6 +852,20 @@ Partial Class frmTempDisplayCalib
 		Me.nudCheckHP.TabIndex = 2
 		Me.nudCheckHP.Value = New Decimal(New Integer() {100, 0, 0, 0})
 		'
+		Me.lblCheckHPSetTempTitle.AutoSize = true
+		Me.lblCheckHPSetTempTitle.Margin = New System.Windows.Forms.Padding(3, 8, 3, 3)
+		Me.lblCheckHPSetTempTitle.Name = "lblCheckHPSetTempTitle"
+		Me.lblCheckHPSetTempTitle.TabIndex = 3
+		Me.lblCheckHPSetTempTitle.Text = "設定温度 (℃)"
+		Me.nudCheckHPSetTemp.DecimalPlaces = 1
+		Me.nudCheckHPSetTemp.Increment = New Decimal(New Integer() {1, 0, 0, 65536})
+		Me.nudCheckHPSetTemp.Margin = New System.Windows.Forms.Padding(3, 4, 3, 3)
+		Me.nudCheckHPSetTemp.Maximum = New Decimal(New Integer() {240, 0, 0, 0})
+		Me.nudCheckHPSetTemp.Minimum = New Decimal(New Integer() {30, 0, 0, 0})
+		Me.nudCheckHPSetTemp.Name = "nudCheckHPSetTemp"
+		Me.nudCheckHPSetTemp.TabIndex = 4
+		Me.nudCheckHPSetTemp.Size = New System.Drawing.Size(85, 24)
+		Me.nudCheckHPSetTemp.Value = New Decimal(New Integer() {100, 0, 0, 0})
 		'lblHPResult
 		'
 		Me.lblHPResult.AutoSize = true
@@ -876,7 +873,7 @@ Partial Class frmTempDisplayCalib
 		Me.lblHPResult.Margin = New System.Windows.Forms.Padding(5, 8, 15, 3)
 		Me.lblHPResult.Name = "lblHPResult"
 		Me.lblHPResult.Size = New System.Drawing.Size(49, 18)
-		Me.lblHPResult.TabIndex = 3
+		Me.lblHPResult.TabIndex = 5
 		Me.lblHPResult.Text = "HP: --"
 		'
 		'lblCheckPBTitle
@@ -886,8 +883,8 @@ Partial Class frmTempDisplayCalib
 		Me.lblCheckPBTitle.Margin = New System.Windows.Forms.Padding(3, 8, 3, 3)
 		Me.lblCheckPBTitle.Name = "lblCheckPBTitle"
 		Me.lblCheckPBTitle.Size = New System.Drawing.Size(81, 18)
-		Me.lblCheckPBTitle.TabIndex = 4
-		Me.lblCheckPBTitle.Text = "PB設定温度"
+		Me.lblCheckPBTitle.TabIndex = 6
+		Me.lblCheckPBTitle.Text = "PB温度計読値 (℃)"
 		'
 		'nudCheckPB
 		'
@@ -899,9 +896,23 @@ Partial Class frmTempDisplayCalib
 		Me.nudCheckPB.Minimum = New Decimal(New Integer() {30, 0, 0, 0})
 		Me.nudCheckPB.Name = "nudCheckPB"
 		Me.nudCheckPB.Size = New System.Drawing.Size(85, 24)
-		Me.nudCheckPB.TabIndex = 5
+		Me.nudCheckPB.TabIndex = 7
 		Me.nudCheckPB.Value = New Decimal(New Integer() {100, 0, 0, 0})
 		'
+		Me.lblCheckPBSetTempTitle.AutoSize = true
+		Me.lblCheckPBSetTempTitle.Margin = New System.Windows.Forms.Padding(3, 8, 3, 3)
+		Me.lblCheckPBSetTempTitle.Name = "lblCheckPBSetTempTitle"
+		Me.lblCheckPBSetTempTitle.TabIndex = 8
+		Me.lblCheckPBSetTempTitle.Text = "設定温度 (℃)"
+		Me.nudCheckPBSetTemp.DecimalPlaces = 1
+		Me.nudCheckPBSetTemp.Increment = New Decimal(New Integer() {1, 0, 0, 65536})
+		Me.nudCheckPBSetTemp.Margin = New System.Windows.Forms.Padding(3, 4, 3, 3)
+		Me.nudCheckPBSetTemp.Maximum = New Decimal(New Integer() {240, 0, 0, 0})
+		Me.nudCheckPBSetTemp.Minimum = New Decimal(New Integer() {30, 0, 0, 0})
+		Me.nudCheckPBSetTemp.Name = "nudCheckPBSetTemp"
+		Me.nudCheckPBSetTemp.TabIndex = 9
+		Me.nudCheckPBSetTemp.Size = New System.Drawing.Size(85, 24)
+		Me.nudCheckPBSetTemp.Value = New Decimal(New Integer() {100, 0, 0, 0})
 		'lblPBResult
 		'
 		Me.lblPBResult.AutoSize = true
@@ -909,7 +920,7 @@ Partial Class frmTempDisplayCalib
 		Me.lblPBResult.Margin = New System.Windows.Forms.Padding(5, 8, 3, 3)
 		Me.lblPBResult.Name = "lblPBResult"
 		Me.lblPBResult.Size = New System.Drawing.Size(48, 18)
-		Me.lblPBResult.TabIndex = 6
+		Me.lblPBResult.TabIndex = 10
 		Me.lblPBResult.Text = "PB: --"
 		'
 		'frmTempDisplayCalib
@@ -948,7 +959,9 @@ Partial Class frmTempDisplayCalib
 		Me.checkPanel.ResumeLayout(false)
 		Me.checkPanel.PerformLayout
 		CType(Me.nudCheckHP,System.ComponentModel.ISupportInitialize).EndInit
+		CType(Me.nudCheckHPSetTemp,System.ComponentModel.ISupportInitialize).EndInit
 		CType(Me.nudCheckPB,System.ComponentModel.ISupportInitialize).EndInit
+		CType(Me.nudCheckPBSetTemp,System.ComponentModel.ISupportInitialize).EndInit
 		Me.ResumeLayout(false)
 
 End Sub
@@ -961,16 +974,12 @@ End Sub
 	Friend WithEvents CH2Error As DataGridViewTextBoxColumn
 	Friend WithEvents HPValid As DataGridViewCheckBoxColumn
 	Friend WithEvents HPSetTemp As DataGridViewTextBoxColumn
-	Friend WithEvents HPDisplayTemp As DataGridViewTextBoxColumn
 	Friend WithEvents HPRefMeasured As DataGridViewTextBoxColumn
-	Friend WithEvents HPError As DataGridViewTextBoxColumn
 	Friend WithEvents HPCalibrated As DataGridViewTextBoxColumn
 	Friend WithEvents HPMeasuredAt As DataGridViewTextBoxColumn
 	Friend WithEvents PBValid As DataGridViewCheckBoxColumn
 	Friend WithEvents PBSetTemp As DataGridViewTextBoxColumn
-	Friend WithEvents PBDisplayTemp As DataGridViewTextBoxColumn
 	Friend WithEvents PBRefMeasured As DataGridViewTextBoxColumn
-	Friend WithEvents PBError As DataGridViewTextBoxColumn
 	Friend WithEvents PBCalibrated As DataGridViewTextBoxColumn
 	Friend WithEvents PBMeasuredAt As DataGridViewTextBoxColumn
 End Class

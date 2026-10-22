@@ -15,8 +15,9 @@ Public Class frmTempDisplayCalib
     Private Const TEMP_MIN As Decimal = 30D
     Private Const TEMP_MAX As Decimal = 240D
     Private Const TEMP_STEP As Decimal = 0.1D
-    Private Const CSV_VERSION As String = "TEMP_CALIB_V1"
+    Private Const CSV_VERSION As String = "TEMP_CALIB_V2"
     Private m_sInstrumentNo As String = "SZK014"
+    Private m_bRecalculating As Boolean
     Private m_bLoading As Boolean
     Private m_bDirty As Boolean = True
     Private m_bSaved As Boolean
@@ -97,7 +98,11 @@ Public Class frmTempDisplayCalib
             AddHandler txtManagement.TextChanged, AddressOf HeaderChanged
             AddHandler nudTolerance.ValueChanged, AddressOf NumericChanged
             AddHandler nudCheckHP.ValueChanged, AddressOf NumericChanged
+            AddHandler nudCheckHPSetTemp.ValueChanged, AddressOf NumericChanged
             AddHandler nudCheckPB.ValueChanged, AddressOf NumericChanged
+            AddHandler nudCheckPBSetTemp.ValueChanged, AddressOf NumericChanged
+            dgvRef.Columns("CH1Error").ReadOnly = True
+            dgvRef.Columns("CH2Error").ReadOnly = True
             AddHandler dgvRef.CellEndEdit, AddressOf ReferenceCellEndEdit
             AddHandler dgvRef.CellValueChanged, AddressOf ReferenceChanged
             AddHandler dgvRef.CurrentCellDirtyStateChanged, AddressOf GridDirtyStateChanged
@@ -265,8 +270,6 @@ End Sub
 				Select Case columnName
 			Case "RefTemp", "CH1Measured", "CH2Measured"
 					ClampCellValue(dgvRef.Rows(e.RowIndex).Cells(e.ColumnIndex), CDbl(TEMP_MIN), CDbl(TEMP_MAX))
-			Case "CH1Error", "CH2Error"
-					ClampCellValue(dgvRef.Rows(e.RowIndex).Cells(e.ColumnIndex), -10.0R, 10.0R)
 				End Select
 			End If
             If e.RowIndex >= 0 Then
@@ -301,7 +304,6 @@ End Sub
 If e.ColumnIndex >= 0 Then
     Dim columnName As String = dgv.Columns(e.ColumnIndex).Name
     If columnName = GetDataColumnName(dgv, "SetTemp") OrElse
-       columnName = GetDataColumnName(dgv, "DisplayTemp") OrElse
        columnName = GetDataColumnName(dgv, "RefMeasured") Then
         ClampCellValue(row.Cells(e.ColumnIndex), CDbl(TEMP_MIN), CDbl(TEMP_MAX))
     End If
@@ -323,8 +325,7 @@ End If
         Try
             Dim a As Double
             Dim b As Double
-            Dim c As Double
-            Return ParseCell(row.Cells(GetDataColumnName(row.DataGridView, "SetTemp")).Value, a) AndAlso ParseCell(row.Cells(GetDataColumnName(row.DataGridView, "DisplayTemp")).Value, b) AndAlso ParseCell(row.Cells(GetDataColumnName(row.DataGridView, "RefMeasured")).Value, c)
+            Return ParseCell(row.Cells(GetDataColumnName(row.DataGridView, "SetTemp")).Value, a) AndAlso ParseCell(row.Cells(GetDataColumnName(row.DataGridView, "RefMeasured")).Value, b)
         Catch ex As Exception
             WriteLog(System.Reflection.MethodBase.GetCurrentMethod().Name & " : " & ex.Message)
             Return False
@@ -398,16 +399,42 @@ End If
     End Sub
 
     Private Sub RecalculateAll()
+        If m_bLoading OrElse m_bRecalculating OrElse dgvRef Is Nothing OrElse dgvHP Is Nothing OrElse dgvPB Is Nothing Then Return
+        m_bRecalculating = True
         Try
-            If m_bLoading OrElse dgvRef Is Nothing OrElse dgvHP Is Nothing OrElse dgvPB Is Nothing Then Return
+            RecalculateReferenceErrors()
             RecalculateMeasurements(dgvHP, True)
             RecalculateMeasurements(dgvPB, False)
             RecalculateRegression(dgvHP, chartHP, lblHPGain, lblHPBias, True)
             RecalculateRegression(dgvPB, chartPB, lblPBGain, lblPBBias, False)
-            lblHPResult.Text = CheckResult(CDbl(nudCheckHP.Value), m_dHP_Gain, m_dHP_Bias, nudTolerance.Value)
-            lblPBResult.Text = CheckResult(CDbl(nudCheckPB.Value), m_dPB_Gain, m_dPB_Bias, nudTolerance.Value)
+            lblHPResult.Text = CheckResult(CDbl(nudCheckHP.Value), CDbl(nudCheckHPSetTemp.Value), m_dHP_Gain, m_dHP_Bias, nudTolerance.Value)
+            lblPBResult.Text = CheckResult(CDbl(nudCheckPB.Value), CDbl(nudCheckPBSetTemp.Value), m_dPB_Gain, m_dPB_Bias, nudTolerance.Value)
         Catch ex As Exception
             WriteLog(System.Reflection.MethodBase.GetCurrentMethod().Name & " : " & ex.Message)
+        Finally
+            m_bRecalculating = False
+        End Try
+    End Sub
+
+    Private Sub RecalculateReferenceErrors()
+        '計算結果の書き込みによるCellValueChangedの再入を防ぐ。
+        m_bLoading = True
+        Try
+            For Each row As DataGridViewRow In dgvRef.Rows
+                If row.IsNewRow Then Continue For
+                Dim refTemp As Double
+                Dim hasReference As Boolean = ParseCell(row.Cells("RefTemp").Value, refTemp)
+                For Each channel As String In New String() {"CH1", "CH2"}
+                    Dim measured As Double
+                    If hasReference AndAlso ParseCell(row.Cells(channel & "Measured").Value, measured) Then
+                        row.Cells(channel & "Error").Value = (refTemp - measured).ToString("0.0000", CultureInfo.InvariantCulture)
+                    Else
+                        row.Cells(channel & "Error").Value = ""
+                    End If
+                Next
+            Next
+        Finally
+            m_bLoading = False
         End Try
     End Sub
 
@@ -416,11 +443,12 @@ End If
             For Each row As DataGridViewRow In dgv.Rows
                 Dim refTemp As Double
                 Dim errorValue As Double
-                If ParseCell(row.Cells(GetDataColumnName(row.DataGridView, "RefMeasured")).Value, refTemp) AndAlso TryInterpolateError(refTemp, isHP, errorValue) Then
-                    row.Cells(GetDataColumnName(row.DataGridView, "Error")).Value = errorValue.ToString("0.0000", CultureInfo.InvariantCulture)
+                Dim setTemp As Double
+                If ParseCell(row.Cells(GetDataColumnName(dgv, "SetTemp")).Value, setTemp) AndAlso
+                   ParseCell(row.Cells(GetDataColumnName(dgv, "RefMeasured")).Value, refTemp) AndAlso
+                   TryInterpolateError(setTemp, isHP, errorValue) Then
                     row.Cells(GetDataColumnName(row.DataGridView, "Calibrated")).Value = (refTemp - errorValue).ToString("0.0000", CultureInfo.InvariantCulture)
                 Else
-                    row.Cells(GetDataColumnName(row.DataGridView, "Error")).Value = ""
                     row.Cells(GetDataColumnName(row.DataGridView, "Calibrated")).Value = ""
                 End If
             Next
@@ -440,6 +468,13 @@ End If
                 If ParseCell(row.Cells(GetDataColumnName(row.DataGridView, "RefTemp")).Value, x) AndAlso ParseCell(row.Cells(If(isHP, "CH1Error", "CH2Error")).Value, y) Then
                     If pts.Any(Function(p) Math.Abs(p.Key - x) < 0.0000001R) Then Return False
                     pts.Add(New KeyValuePair(Of Double, Double)(x, y))
+                End If
+            Next
+            '証明書に一致する設定温度があれば、そのCH誤差を直接使用する。
+            For Each point As KeyValuePair(Of Double, Double) In pts
+                If Math.Abs(point.Key - temp) < 0.0000001R Then
+                    errorValue = point.Value
+                    Return True
                 End If
             Next
             If pts.Count < 2 Then Return False
@@ -555,10 +590,11 @@ End If
         End Try
     End Function
 
-    Private Function CheckResult(ByVal setTemp As Double, ByVal gain As Double, ByVal bias As Double, ByVal tolerance As Decimal) As String
+    Private Function CheckResult(ByVal measuredTemp As Double, ByVal setTemp As Double, ByVal gain As Double, ByVal bias As Double, ByVal tolerance As Decimal) As String
         Try
             If Double.IsNaN(gain) OrElse Double.IsNaN(bias) OrElse Double.IsInfinity(gain) OrElse Double.IsInfinity(bias) Then Return "結果: --"
-            Dim delta As Double = gain * setTemp + bias - setTemp
+            Dim predictedTemp As Double = gain * measuredTemp + bias
+            Dim delta As Double = predictedTemp - setTemp
             Return If(Math.Abs(delta) <= CDbl(tolerance), "PASS", "FAIL") & " (ΔT=" & delta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture) & "℃)"
         Catch ex As Exception
             WriteLog(System.Reflection.MethodBase.GetCurrentMethod().Name & " : " & ex.Message)
@@ -621,18 +657,18 @@ End If
     Private Function SaveCsv(ByVal filePath As String) As Boolean
         Try
             Dim lines As New List(Of String)
-            lines.Add(CsvLine(CSV_VERSION, m_sInstrumentNo, txtManagement.Text.Trim(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), nudTolerance.Value.ToString(CultureInfo.InvariantCulture), nudCheckHP.Value.ToString(CultureInfo.InvariantCulture), nudCheckPB.Value.ToString(CultureInfo.InvariantCulture)))
+            lines.Add(CsvLine(CSV_VERSION, m_sInstrumentNo, txtManagement.Text.Trim(), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture), nudTolerance.Value.ToString(CultureInfo.InvariantCulture), nudCheckHP.Value.ToString(CultureInfo.InvariantCulture), nudCheckPB.Value.ToString(CultureInfo.InvariantCulture), nudCheckHPSetTemp.Value.ToString(CultureInfo.InvariantCulture), nudCheckPBSetTemp.Value.ToString(CultureInfo.InvariantCulture)))
             lines.Add(CsvLine("REFERENCE", "RefTemp", "CH1Measured", "CH1Error", "CH2Measured", "CH2Error"))
             For Each row As DataGridViewRow In dgvRef.Rows
                 lines.Add(CsvLine("R", CellText(row, "RefTemp"), CellText(row, "CH1Measured"), CellText(row, "CH1Error"), CellText(row, "CH2Measured"), CellText(row, "CH2Error")))
             Next
-            lines.Add(CsvLine("HP", "Valid", "SetTemp", "DisplayTemp", "RefMeasured", "Error", "Calibrated", "MeasuredAt"))
+            lines.Add(CsvLine("HP", "Valid", "SetTemp", "RefMeasured", "Calibrated", "MeasuredAt"))
             For Each row As DataGridViewRow In dgvHP.Rows
-                lines.Add(CsvLine("H", CellText(row, "Valid"), CellText(row, "SetTemp"), CellText(row, "DisplayTemp"), CellText(row, "RefMeasured"), CellText(row, "Error"), CellText(row, "Calibrated"), CellText(row, "MeasuredAt")))
+                lines.Add(CsvLine("H", CellText(row, "Valid"), CellText(row, "SetTemp"), CellText(row, "RefMeasured"), CellText(row, "Calibrated"), CellText(row, "MeasuredAt")))
             Next
-            lines.Add(CsvLine("PB", "Valid", "SetTemp", "DisplayTemp", "RefMeasured", "Error", "Calibrated", "MeasuredAt"))
+            lines.Add(CsvLine("PB", "Valid", "SetTemp", "RefMeasured", "Calibrated", "MeasuredAt"))
             For Each row As DataGridViewRow In dgvPB.Rows
-                lines.Add(CsvLine("P", CellText(row, "Valid"), CellText(row, "SetTemp"), CellText(row, "DisplayTemp"), CellText(row, "RefMeasured"), CellText(row, "Error"), CellText(row, "Calibrated"), CellText(row, "MeasuredAt")))
+                lines.Add(CsvLine("P", CellText(row, "Valid"), CellText(row, "SetTemp"), CellText(row, "RefMeasured"), CellText(row, "Calibrated"), CellText(row, "MeasuredAt")))
             Next
             File.WriteAllLines(filePath, lines, New UTF8Encoding(True))
             Return True
@@ -659,8 +695,9 @@ End If
 
     Private Function CellText(ByVal row As DataGridViewRow, ByVal column As String) As String
         Try
-            If row.Cells(column).Value Is Nothing OrElse row.Cells(column).Value Is DBNull.Value Then Return ""
-            Return Convert.ToString(row.Cells(column).Value, CultureInfo.InvariantCulture)
+            Dim name As String = GetDataColumnName(row.DataGridView, column)
+            If row.Cells(name).Value Is Nothing OrElse row.Cells(name).Value Is DBNull.Value Then Return ""
+            Return Convert.ToString(row.Cells(name).Value, CultureInfo.InvariantCulture)
         Catch ex As Exception
             WriteLog(System.Reflection.MethodBase.GetCurrentMethod().Name & " : " & ex.Message)
             Return ""
@@ -737,7 +774,9 @@ End If
             txtManagement.Text = ""
             nudTolerance.Value = 0.5D
             nudCheckHP.Value = 100D
+            nudCheckHPSetTemp.Value = 100D
             nudCheckPB.Value = 100D
+            nudCheckPBSetTemp.Value = 100D
             SetRegressionInvalid(True)
             SetRegressionInvalid(False)
             m_bSaved = False
@@ -870,7 +909,8 @@ End Sub
             Dim lines As String() = File.ReadAllLines(filePath, Encoding.UTF8)
             If lines.Length = 0 Then Throw New InvalidDataException("CSVファイルが空です。")
             Dim header As List(Of String) = ParseCsvLine(lines(0))
-            If header.Count < 7 OrElse header(0) <> CSV_VERSION Then Throw New InvalidDataException("CSV形式またはバージョンが不正です。")
+            If header.Count < 7 OrElse (header(0) <> CSV_VERSION AndAlso header(0) <> "TEMP_CALIB_V1") Then Throw New InvalidDataException("CSV形式またはバージョンが不正です。")
+            Dim legacy As Boolean = (header(0) = "TEMP_CALIB_V1")
             m_bLoading = True
             ClearData()
             m_sInstrumentNo = header(1)
@@ -880,6 +920,13 @@ End Sub
             If Decimal.TryParse(header(4), NumberStyles.Float, CultureInfo.InvariantCulture, d) Then nudTolerance.Value = Math.Max(nudTolerance.Minimum, Math.Min(nudTolerance.Maximum, d))
             If Decimal.TryParse(header(5), NumberStyles.Float, CultureInfo.InvariantCulture, d) Then nudCheckHP.Value = Math.Max(nudCheckHP.Minimum, Math.Min(nudCheckHP.Maximum, d))
             If Decimal.TryParse(header(6), NumberStyles.Float, CultureInfo.InvariantCulture, d) Then nudCheckPB.Value = Math.Max(nudCheckPB.Minimum, Math.Min(nudCheckPB.Maximum, d))
+            '旧CSVには独立した設定温度がないため、従来の入力値を初期値にする。
+            nudCheckHPSetTemp.Value = nudCheckHP.Value
+            nudCheckPBSetTemp.Value = nudCheckPB.Value
+            If header.Count >= 9 Then
+                If Decimal.TryParse(header(7), NumberStyles.Float, CultureInfo.InvariantCulture, d) Then nudCheckHPSetTemp.Value = Math.Max(nudCheckHPSetTemp.Minimum, Math.Min(nudCheckHPSetTemp.Maximum, d))
+                If Decimal.TryParse(header(8), NumberStyles.Float, CultureInfo.InvariantCulture, d) Then nudCheckPBSetTemp.Value = Math.Max(nudCheckPBSetTemp.Minimum, Math.Min(nudCheckPBSetTemp.Maximum, d))
+            End If
             For i As Integer = 1 To lines.Length - 1
                 If String.IsNullOrWhiteSpace(lines(i)) Then Continue For
                 Dim f As List(Of String) = ParseCsvLine(lines(i))
@@ -893,9 +940,9 @@ End Sub
                         Next
                     End If
                 Case "H"
-                    If f.Count >= 8 Then AddLoadedMeasurement(dgvHP, f)
+                    If f.Count >= If(legacy, 8, 6) Then AddLoadedMeasurement(dgvHP, f, legacy)
                 Case "P"
-                    If f.Count >= 8 Then AddLoadedMeasurement(dgvPB, f)
+                    If f.Count >= If(legacy, 8, 6) Then AddLoadedMeasurement(dgvPB, f, legacy)
                 Case Else
                     'CSV内の見出し行は読み飛ばす
                 End Select
@@ -910,16 +957,14 @@ End Sub
         End Try
     End Sub
 
-    Private Sub AddLoadedMeasurement(ByVal dgv As DataGridView, ByVal f As List(Of String))
+    Private Sub AddLoadedMeasurement(ByVal dgv As DataGridView, ByVal f As List(Of String), ByVal legacy As Boolean)
         Try
             Dim i As Integer = dgv.Rows.Add()
             dgv.Rows(i).Cells(GetDataColumnName(dgv, "Valid")).Value = (f(1).ToLowerInvariant() = "true" OrElse f(1) = "1")
             dgv.Rows(i).Cells(GetDataColumnName(dgv, "SetTemp")).Value = f(2)
-            dgv.Rows(i).Cells(GetDataColumnName(dgv, "DisplayTemp")).Value = f(3)
-            dgv.Rows(i).Cells(GetDataColumnName(dgv, "RefMeasured")).Value = f(4)
-            dgv.Rows(i).Cells(GetDataColumnName(dgv, "Error")).Value = f(5)
-            dgv.Rows(i).Cells(GetDataColumnName(dgv, "Calibrated")).Value = f(6)
-            dgv.Rows(i).Cells(GetDataColumnName(dgv, "MeasuredAt")).Value = f(7)
+            dgv.Rows(i).Cells(GetDataColumnName(dgv, "RefMeasured")).Value = f(If(legacy, 4, 3))
+            '校正後温度は保存値ではなく、現在の証明書データで再計算する。
+            dgv.Rows(i).Cells(GetDataColumnName(dgv, "MeasuredAt")).Value = f(If(legacy, 7, 5))
         Catch ex As Exception
             WriteLog(System.Reflection.MethodBase.GetCurrentMethod().Name & " : " & ex.Message)
             Throw
