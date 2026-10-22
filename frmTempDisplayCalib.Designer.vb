@@ -804,15 +804,15 @@ Partial Class frmTempDisplayCalib
 		'checkPanel
 		'
 		Me.checkPanel.Controls.Add(Me.lblCheckTitle)
-		Me.checkPanel.Controls.Add(Me.lblCheckHPTitle)
-		Me.checkPanel.Controls.Add(Me.nudCheckHP)
 		Me.checkPanel.Controls.Add(Me.lblCheckHPSetTempTitle)
 		Me.checkPanel.Controls.Add(Me.nudCheckHPSetTemp)
+		Me.checkPanel.Controls.Add(Me.lblCheckHPTitle)
+		Me.checkPanel.Controls.Add(Me.nudCheckHP)
 		Me.checkPanel.Controls.Add(Me.lblHPResult)
-		Me.checkPanel.Controls.Add(Me.lblCheckPBTitle)
-		Me.checkPanel.Controls.Add(Me.nudCheckPB)
 		Me.checkPanel.Controls.Add(Me.lblCheckPBSetTempTitle)
 		Me.checkPanel.Controls.Add(Me.nudCheckPBSetTemp)
+		Me.checkPanel.Controls.Add(Me.lblCheckPBTitle)
+		Me.checkPanel.Controls.Add(Me.nudCheckPB)
 		Me.checkPanel.Controls.Add(Me.lblPBResult)
 		Me.checkPanel.Dock = System.Windows.Forms.DockStyle.Fill
 		Me.checkPanel.Location = New System.Drawing.Point(8, 957)
@@ -840,8 +840,8 @@ Partial Class frmTempDisplayCalib
 		Me.lblCheckHPTitle.Margin = New System.Windows.Forms.Padding(3, 8, 3, 3)
 		Me.lblCheckHPTitle.Name = "lblCheckHPTitle"
 		Me.lblCheckHPTitle.Size = New System.Drawing.Size(82, 18)
-		Me.lblCheckHPTitle.TabIndex = 1
-		Me.lblCheckHPTitle.Text = "HP温度計読値 (℃)"
+		Me.lblCheckHPTitle.TabIndex = 3
+		Me.lblCheckHPTitle.Text = "温度計読値 (℃)"
 		'
 		'nudCheckHP
 		'
@@ -853,21 +853,21 @@ Partial Class frmTempDisplayCalib
 		Me.nudCheckHP.Minimum = New Decimal(New Integer() {30, 0, 0, 0})
 		Me.nudCheckHP.Name = "nudCheckHP"
 		Me.nudCheckHP.Size = New System.Drawing.Size(85, 24)
-		Me.nudCheckHP.TabIndex = 2
+		Me.nudCheckHP.TabIndex = 4
 		Me.nudCheckHP.Value = New Decimal(New Integer() {100, 0, 0, 0})
 		'
 		Me.lblCheckHPSetTempTitle.AutoSize = true
 		Me.lblCheckHPSetTempTitle.Margin = New System.Windows.Forms.Padding(3, 8, 3, 3)
 		Me.lblCheckHPSetTempTitle.Name = "lblCheckHPSetTempTitle"
-		Me.lblCheckHPSetTempTitle.TabIndex = 3
-		Me.lblCheckHPSetTempTitle.Text = "設定温度 (℃)"
+		Me.lblCheckHPSetTempTitle.TabIndex = 1
+		Me.lblCheckHPSetTempTitle.Text = "HP設定温度 (℃)"
 		Me.nudCheckHPSetTemp.DecimalPlaces = 1
 		Me.nudCheckHPSetTemp.Increment = New Decimal(New Integer() {1, 0, 0, 65536})
 		Me.nudCheckHPSetTemp.Margin = New System.Windows.Forms.Padding(3, 4, 3, 3)
 		Me.nudCheckHPSetTemp.Maximum = New Decimal(New Integer() {240, 0, 0, 0})
 		Me.nudCheckHPSetTemp.Minimum = New Decimal(New Integer() {30, 0, 0, 0})
 		Me.nudCheckHPSetTemp.Name = "nudCheckHPSetTemp"
-		Me.nudCheckHPSetTemp.TabIndex = 4
+		Me.nudCheckHPSetTemp.TabIndex = 2
 		Me.nudCheckHPSetTemp.Size = New System.Drawing.Size(85, 24)
 		Me.nudCheckHPSetTemp.Value = New Decimal(New Integer() {100, 0, 0, 0})
 		'lblHPResult
@@ -887,8 +887,8 @@ Partial Class frmTempDisplayCalib
 		Me.lblCheckPBTitle.Margin = New System.Windows.Forms.Padding(3, 8, 3, 3)
 		Me.lblCheckPBTitle.Name = "lblCheckPBTitle"
 		Me.lblCheckPBTitle.Size = New System.Drawing.Size(81, 18)
-		Me.lblCheckPBTitle.TabIndex = 6
-		Me.lblCheckPBTitle.Text = "PB温度計読値 (℃)"
+		Me.lblCheckPBTitle.TabIndex = 8
+		Me.lblCheckPBTitle.Text = "温度計読値 (℃)"
 		'
 		'nudCheckPB
 		'
@@ -900,21 +900,21 @@ Partial Class frmTempDisplayCalib
 		Me.nudCheckPB.Minimum = New Decimal(New Integer() {30, 0, 0, 0})
 		Me.nudCheckPB.Name = "nudCheckPB"
 		Me.nudCheckPB.Size = New System.Drawing.Size(85, 24)
-		Me.nudCheckPB.TabIndex = 7
+		Me.nudCheckPB.TabIndex = 9
 		Me.nudCheckPB.Value = New Decimal(New Integer() {100, 0, 0, 0})
 		'
 		Me.lblCheckPBSetTempTitle.AutoSize = true
 		Me.lblCheckPBSetTempTitle.Margin = New System.Windows.Forms.Padding(3, 8, 3, 3)
 		Me.lblCheckPBSetTempTitle.Name = "lblCheckPBSetTempTitle"
-		Me.lblCheckPBSetTempTitle.TabIndex = 8
-		Me.lblCheckPBSetTempTitle.Text = "設定温度 (℃)"
+		Me.lblCheckPBSetTempTitle.TabIndex = 6
+		Me.lblCheckPBSetTempTitle.Text = "PB設定温度 (℃)"
 		Me.nudCheckPBSetTemp.DecimalPlaces = 1
 		Me.nudCheckPBSetTemp.Increment = New Decimal(New Integer() {1, 0, 0, 65536})
 		Me.nudCheckPBSetTemp.Margin = New System.Windows.Forms.Padding(3, 4, 3, 3)
 		Me.nudCheckPBSetTemp.Maximum = New Decimal(New Integer() {240, 0, 0, 0})
 		Me.nudCheckPBSetTemp.Minimum = New Decimal(New Integer() {30, 0, 0, 0})
 		Me.nudCheckPBSetTemp.Name = "nudCheckPBSetTemp"
-		Me.nudCheckPBSetTemp.TabIndex = 9
+		Me.nudCheckPBSetTemp.TabIndex = 7
 		Me.nudCheckPBSetTemp.Size = New System.Drawing.Size(85, 24)
 		Me.nudCheckPBSetTemp.Value = New Decimal(New Integer() {100, 0, 0, 0})
 		'lblPBResult
