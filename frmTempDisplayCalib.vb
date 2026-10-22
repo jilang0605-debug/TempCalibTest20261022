@@ -622,6 +622,11 @@ End If
         Try
             result = 0
             If value Is Nothing OrElse value Is DBNull.Value Then Return False
+            '計算済みのDoubleは文字列に変換せず、そのまま次の計算に渡す。
+            If TypeOf value Is Double Then
+                result = DirectCast(value, Double)
+                Return Not Double.IsNaN(result) AndAlso Not Double.IsInfinity(result)
+            End If
             Dim s As String = Convert.ToString(value, CultureInfo.InvariantCulture).Trim()
             If s = "" Then Return False
             Return Double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, result) AndAlso Not Double.IsNaN(result) AndAlso Not Double.IsInfinity(result)
@@ -712,8 +717,11 @@ End If
     Private Function CellText(ByVal row As DataGridViewRow, ByVal column As String) As String
         Try
             Dim name As String = GetDataColumnName(row.DataGridView, column)
-            If row.Cells(name).Value Is Nothing OrElse row.Cells(name).Value Is DBNull.Value Then Return ""
-            Return Convert.ToString(row.Cells(name).Value, CultureInfo.InvariantCulture)
+            Dim value As Object = row.Cells(name).Value
+            If value Is Nothing OrElse value Is DBNull.Value Then Return ""
+            '画面の表示桁数をCSVに適用せず、再読込時に元のDoubleを復元する。
+            If TypeOf value Is Double Then Return DirectCast(value, Double).ToString("R", CultureInfo.InvariantCulture)
+            Return Convert.ToString(value, CultureInfo.InvariantCulture)
         Catch ex As Exception
             WriteLog(System.Reflection.MethodBase.GetCurrentMethod().Name & " : " & ex.Message)
             Return ""
