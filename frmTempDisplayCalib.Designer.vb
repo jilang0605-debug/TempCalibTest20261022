@@ -545,6 +545,7 @@ Partial Class frmTempDisplayCalib
 		'chartHP
 		'
 		ChartArea5.AxisX.Interval = 20R
+		ChartArea5.AxisX.LabelStyle.Format = "0.0"
 		ChartArea5.AxisX.LabelStyle.Font = New System.Drawing.Font("Meiryo UI", 10!)
 		ChartArea5.AxisX.MajorGrid.LineColor = System.Drawing.Color.LightGray
 		ChartArea5.AxisX.Maximum = 240R
@@ -552,6 +553,7 @@ Partial Class frmTempDisplayCalib
 		ChartArea5.AxisX.Title = "設定温度 (℃)"
 		ChartArea5.AxisX.TitleFont = New System.Drawing.Font("Meiryo UI", 10!)
 		ChartArea5.AxisY.Interval = 20R
+		ChartArea5.AxisY.LabelStyle.Format = "0.0"
 		ChartArea5.AxisY.LabelStyle.Font = New System.Drawing.Font("Meiryo UI", 10!)
 		ChartArea5.AxisY.MajorGrid.LineColor = System.Drawing.Color.LightGray
 		ChartArea5.AxisY.Maximum = 240R
@@ -714,6 +716,7 @@ Partial Class frmTempDisplayCalib
 		'chartPB
 		'
 		ChartArea6.AxisX.Interval = 20R
+		ChartArea6.AxisX.LabelStyle.Format = "0.0"
 		ChartArea6.AxisX.LabelStyle.Font = New System.Drawing.Font("Meiryo UI", 10!)
 		ChartArea6.AxisX.MajorGrid.LineColor = System.Drawing.Color.LightGray
 		ChartArea6.AxisX.Maximum = 240R
@@ -721,6 +724,7 @@ Partial Class frmTempDisplayCalib
 		ChartArea6.AxisX.Title = "設定温度 (℃)"
 		ChartArea6.AxisX.TitleFont = New System.Drawing.Font("Meiryo UI", 10!)
 		ChartArea6.AxisY.Interval = 20R
+		ChartArea6.AxisY.LabelStyle.Format = "0.0"
 		ChartArea6.AxisY.LabelStyle.Font = New System.Drawing.Font("Meiryo UI", 10!)
 		ChartArea6.AxisY.MajorGrid.LineColor = System.Drawing.Color.LightGray
 		ChartArea6.AxisY.Maximum = 240R

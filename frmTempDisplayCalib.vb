@@ -101,6 +101,9 @@ Public Class frmTempDisplayCalib
             AddHandler nudCheckHPSetTemp.ValueChanged, AddressOf NumericChanged
             AddHandler nudCheckPB.ValueChanged, AddressOf NumericChanged
             AddHandler nudCheckPBSetTemp.ValueChanged, AddressOf NumericChanged
+            AddHandler dgvRef.CellFormatting, AddressOf TemperatureCellFormatting
+            AddHandler dgvHP.CellFormatting, AddressOf TemperatureCellFormatting
+            AddHandler dgvPB.CellFormatting, AddressOf TemperatureCellFormatting
             dgvRef.Columns("CH1Error").ReadOnly = True
             dgvRef.Columns("CH2Error").ReadOnly = True
             AddHandler dgvRef.CellEndEdit, AddressOf ReferenceCellEndEdit
@@ -252,6 +255,19 @@ End Sub
             WriteLog(System.Reflection.MethodBase.GetCurrentMethod().Name & " : " & ex.Message)
             ShowError(ex)
         End Try
+    End Sub
+
+    '表示のみを小数点以下1桁にし、補間や回帰に使う数値の精度は保持する。
+    Private Sub TemperatureCellFormatting(ByVal sender As Object, ByVal e As DataGridViewCellFormattingEventArgs)
+        If e.RowIndex < 0 OrElse e.ColumnIndex < 0 Then Return
+        Dim dgv As DataGridView = DirectCast(sender, DataGridView)
+        Dim name As String = dgv.Columns(e.ColumnIndex).Name
+        If name = GetDataColumnName(dgv, "Valid") OrElse name = GetDataColumnName(dgv, "MeasuredAt") Then Return
+        Dim value As Double
+        If ParseCell(e.Value, value) Then
+            e.Value = value.ToString("0.0", CultureInfo.InvariantCulture)
+            e.FormattingApplied = True
+        End If
     End Sub
 
     Private Sub GridDirtyStateChanged(ByVal sender As Object, ByVal e As EventArgs)
@@ -427,7 +443,7 @@ End If
                 For Each channel As String In New String() {"CH1", "CH2"}
                     Dim measured As Double
                     If hasReference AndAlso ParseCell(row.Cells(channel & "Measured").Value, measured) Then
-                        row.Cells(channel & "Error").Value = (refTemp - measured).ToString("0.0000", CultureInfo.InvariantCulture)
+                        row.Cells(channel & "Error").Value = measured - refTemp
                     Else
                         row.Cells(channel & "Error").Value = ""
                     End If
@@ -447,7 +463,7 @@ End If
                 If ParseCell(row.Cells(GetDataColumnName(dgv, "SetTemp")).Value, setTemp) AndAlso
                    ParseCell(row.Cells(GetDataColumnName(dgv, "RefMeasured")).Value, refTemp) AndAlso
                    TryInterpolateError(setTemp, isHP, errorValue) Then
-                    row.Cells(GetDataColumnName(row.DataGridView, "Calibrated")).Value = (refTemp - errorValue).ToString("0.0000", CultureInfo.InvariantCulture)
+                    row.Cells(GetDataColumnName(row.DataGridView, "Calibrated")).Value = refTemp - errorValue
                 Else
                     row.Cells(GetDataColumnName(row.DataGridView, "Calibrated")).Value = ""
                 End If
@@ -595,7 +611,7 @@ End If
             If Double.IsNaN(gain) OrElse Double.IsNaN(bias) OrElse Double.IsInfinity(gain) OrElse Double.IsInfinity(bias) Then Return "結果: --"
             Dim predictedTemp As Double = gain * measuredTemp + bias
             Dim delta As Double = predictedTemp - setTemp
-            Return If(Math.Abs(delta) <= CDbl(tolerance), "PASS", "FAIL") & " (ΔT=" & delta.ToString("+0.000;-0.000;0.000", CultureInfo.InvariantCulture) & "℃)"
+            Return If(Math.Abs(delta) <= CDbl(tolerance), "PASS", "FAIL") & " (ΔT=" & delta.ToString("+0.0;-0.0;0.0", CultureInfo.InvariantCulture) & "℃)"
         Catch ex As Exception
             WriteLog(System.Reflection.MethodBase.GetCurrentMethod().Name & " : " & ex.Message)
             Return "結果: --"
